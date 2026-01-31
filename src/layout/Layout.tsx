@@ -28,7 +28,6 @@ export default function Layout() {
   const [collapsed, setCollapsed] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
-
   return (
     <AntLayout style={{ minHeight: '100vh' }}>
       <Sider

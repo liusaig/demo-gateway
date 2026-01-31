@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Card, Table, Button, Space, Modal, Form, Select } from 'antd'
+import { Card, Table, Button, Space, Modal, Form, Select, Flex } from 'antd'
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons'
 import { useModelServices } from '../context/ModelServicesContext'
 
@@ -63,6 +63,15 @@ export default function MultiModelService() {
   const handleModalClose = () => {
     setModalOpen(false)
     setFormInitialValues(null)
+  }
+
+  /** 弹窗完全打开后再用 setFieldsValue 填一次，确保 Form.List 能正确显示（initialValues 在受控 form 下有时不生效） */
+  const handleAfterOpenChange = (open: boolean) => {
+    if (!open || !formInitialValues) return
+    const timer = setTimeout(() => {
+      form.setFieldsValue(formInitialValues)
+    }, 50)
+    return () => clearTimeout(timer)
   }
 
   const handleSubmit = () => {
@@ -146,6 +155,7 @@ export default function MultiModelService() {
         open={modalOpen}
         onOk={handleSubmit}
         onCancel={handleModalClose}
+        afterOpenChange={handleAfterOpenChange}
         width={560}
         destroyOnClose
       >
@@ -155,11 +165,13 @@ export default function MultiModelService() {
           preserve={false}
           key={editingId ?? 'add'}
           initialValues={formInitialValues ?? undefined}
+          style={{ marginTop: 8 }}
         >
           <Form.Item
             name="serviceName"
             label="模型服务名称（与模型服务管理中的模型名称一致）"
             rules={[{ required: true, message: '请选择对外的模型名称' }]}
+            style={{ marginBottom: 16 }}
           >
             <Select
               showSearch
@@ -172,12 +184,12 @@ export default function MultiModelService() {
             {(fields, { add, remove }) => (
               <>
                 {fields.map(({ key, name, ...rest }) => (
-                  <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
+                  <Flex key={key} gap={12} align="center" style={{ marginBottom: 12 }}>
                     <Form.Item
                       {...rest}
                       name={[name, 'modelId']}
                       rules={[{ required: true, message: '请选择模型' }]}
-                      style={{ marginBottom: 0, minWidth: 220 }}
+                      style={{ marginBottom: 0, flex: 1, minWidth: 0 }}
                     >
                       <Select
                         showSearch
@@ -197,15 +209,21 @@ export default function MultiModelService() {
                       {...rest}
                       name={[name, 'displayName']}
                       rules={[{ required: true, message: '显示名' }]}
-                      style={{ marginBottom: 0, minWidth: 160 }}
                       hidden
+                      style={{ marginBottom: 0, display: 'none' }}
                     >
                       <input type="hidden" />
                     </Form.Item>
-                    <Button type="text" danger icon={<DeleteOutlined />} onClick={() => remove(name)} />
-                  </Space>
+                    <Button
+                      type="text"
+                      danger
+                      icon={<DeleteOutlined />}
+                      onClick={() => remove(name)}
+                      style={{ flexShrink: 0 }}
+                    />
+                  </Flex>
                 ))}
-                <Form.Item>
+                <Form.Item style={{ marginBottom: 0 }}>
                   <Button type="dashed" onClick={() => add()} block>
                     + 添加模型（从模型服务管理中选择）
                   </Button>
