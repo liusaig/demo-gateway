@@ -23,7 +23,7 @@ function setStoredAuth(authenticated: boolean) {
 }
 
 /** 站点密码：可通过环境变量 VITE_SITE_PASSWORD 配置，未设置时使用下方默认密码 */
-const SITE_PASSWORD = import.meta.env.VITE_SITE_PASSWORD ?? 'Gw@2025-Demo!'
+const SITE_PASSWORD = (import.meta.env.VITE_SITE_PASSWORD ?? 'Tw6H4qqpbJZC').trim()
 
 type AuthContextValue = {
   isAuthenticated: boolean
@@ -41,7 +41,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const login = useCallback((password: string): boolean => {
-    if (password === SITE_PASSWORD) {
+    const trimmed = (password ?? '').trim()
+    if (trimmed === SITE_PASSWORD) {
       setStoredAuth(true)
       setIsAuthenticated(true)
       return true
